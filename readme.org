@@ -1,1 +1,22 @@
 * Not-So-Slow-Knapsack
+
+
+
+** Overview
+
+** Input Format 
+
+The first line contains 2 integers: =n= the number of lines i.e. the number of items and =K= the capacity of the knapsack.
+
+#+BEGIN_SRC sh
+
+n K
+v_0 w_0
+v_1 w_1
+...
+v_n-1 w_n-1
+
+#+END_SRC
+
+
+** Output Format
