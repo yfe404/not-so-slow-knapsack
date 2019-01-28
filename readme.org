@@ -8,6 +8,8 @@
 
 The first line contains 2 integers: =n= the number of lines i.e. the number of items and =K= the capacity of the knapsack.
 The =n= next lines contain 2 integers: the *value* and the *weight* of an item. 
+
+*** Format
 #+BEGIN_SRC sh
 
 n K
@@ -19,7 +21,6 @@ v_n-1 w_n-1
 #+END_SRC
 
 *** Input Example
-
 #+BEGIN_SRC sh
 4 11 
 84 10 
@@ -28,3 +29,19 @@ v_n-1 w_n-1
 #+END_SRC
 
 ** Output Format
+
+The first line contains 2 integers =obj= which is the value of the knapsack i.e. the sum of the values of each items in the knapsack. The second integer =opt= 
+is either 0 or 1, 1 if =obj= is the global optimum (proven), 0 else. The second (and last) line contains =n= integers (the number of items) with a value of 
+1 if the item is in the knapsack or 0 else. 
+
+*** Format
+#+BEGIN_SRC sh
+obj opt
+x_0 x_1 x_2 ... x_n-1
+#+END_SRC
+
+*** Output Format
+#+BEGIN_SRC sh
+19 0 
+0 0 1 1
+#+END_SRC
