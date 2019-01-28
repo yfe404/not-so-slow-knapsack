@@ -7,7 +7,7 @@
 ** Input Format 
 
 The first line contains 2 integers: =n= the number of lines i.e. the number of items and =K= the capacity of the knapsack.
-
+The =n= next lines contain 2 integers: the *value* and the *weight* of an item. 
 #+BEGIN_SRC sh
 
 n K
