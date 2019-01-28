@@ -1,11 +1,63 @@
+* Not-So-Slow-Knapsack
+
 [[file:img/meme.jpg]]
 
 
-* Not-So-Slow-Knapsack
-
-
-
 ** Overview
+
+*** Installation 
+
+Build binary
+#+BEGIN_SRC sh
+mkdir bin; g++ --std=c++11 src/bb_knap.cpp -o bin/knapsack
+#+END_SRC
+
+*** Usage CLI 
+
+Note: tested on =python3.6=, the only requirement is =click= library.
+
+#+BEGIN_SRC sh
+$ python cli/main.py 
+#+END_SRC
+
+#+BEGIN_SRC 
+Choose a problem instance:
+
+1) ks_60_0
+2) ks_4_0
+3) ks_45_0
+4) ks_30_0
+5) ks_lecture_dp_2
+6) ks_10000_0
+7) ks_300_0
+8) ks_200_0
+9) ks_100_1
+10) ks_100_0
+11) ks_200_1
+12) ks_500_0
+13) ks_400_0
+14) ks_lecture_dp_1
+15) ks_19_0
+16) ks_100_2
+17) ks_106_0
+18) ks_40_0
+19) ks_82_0
+20) ks_50_0
+21) ks_50_1
+22) ks_1000_0
+#+END_SRC
+
+
+#+BEGIN_SRC sh
+1
+#+END_SRC
+
+#+BEGIN_SRC sh
+./data/ks_60_0
+99837 1
+0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 1 0 1 0 1 0 1 0 0 0 1 0 1 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+#+END_SRC
+
 
 ** Input Format 
 
