@@ -18,5 +18,13 @@ v_n-1 w_n-1
 
 #+END_SRC
 
+*** Input Example
+
+#+BEGIN_SRC sh
+4 11 
+84 10 
+5 15 
+8 43
+#+END_SRC
 
 ** Output Format
