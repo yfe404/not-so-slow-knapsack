@@ -108,7 +108,6 @@ void optimisticEstimation(Node* node, const std::vector<Item>& sortedItems, int 
   }
 }
 
-
 int main(int argc, char**argv){
 
   if (argc != 2) {
@@ -123,33 +122,20 @@ int main(int argc, char**argv){
   int best_value = 0;
   vector<int> best_solution(items.size(), 0);
 
-  //printVector(items);
-
   std::sort(items.begin(), items.end(), sortByDensity);
 
-  //  printVector(items);
-
-  vector<Node> treeFront;
-  
   // Init
   Node root;
+  vector<Node> treeFront;
+  vector<Node> newTreeFront;
+  
   root.constraints = vector<int>(items.size(), 1);
   optimisticEstimation(&root, items, capacity);
 
   treeFront.push_back(root);
-
-  //for (auto  n : treeFront)
-    //    cout << n;
-
-  vector<Node> newTreeFront;
-
-  int depth = 0;
-
+  
   for(int i = 0; i < items.size(); ++i) {
     if (treeFront.size() == 0) break;
-    depth++;
-    //cout << "======= " << depth << " level =======" << endl; 
-    // second level
     newTreeFront.clear();
     for (auto n : treeFront) {
       Node left, right;
@@ -176,31 +162,29 @@ int main(int argc, char**argv){
 	if (n.value > best_value) {
 	  best_value = n.value;
 	  best_solution = n.local_constraint;
-	  //	  cout << n;
+	  //	  cout << n; // Uncomment to print intermermediate (valid) solutions
 	}
       }
     }
   }
 
- vector<int> temp(items.size(),0);
-
- for (int i = 0; i < items.size(); ++i) {
-   if(std::find(best_solution.begin(), best_solution.end(), i) != best_solution.end()) {
-     /* v contains x */
-     temp[i] = 1;
-   } else {
-     /* v does not contain x */
-     temp[i] = 0;
-   }
- }
-      vector<int> sol(items.size(),0);
+  
+  // Build the solution vector
+  vector<int> temp(items.size(),0);
+  for (int i = 0; i < items.size(); ++i) {
+    if(std::find(best_solution.begin(), best_solution.end(), i) != best_solution.end()) {
+      temp[i] = 1;
+    } else {
+      temp[i] = 0;
+    }
+  }
+  
+  vector<int> sol(items.size(),0);
   cout << best_value << " " << 1 << endl;
   for (int i = 0; i < items.size(); ++i) {
     sol[items[i].id] = temp[i]; 
   }
 
   printVector(sol);
-
- 
 
 }
