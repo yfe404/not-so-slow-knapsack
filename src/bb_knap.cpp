@@ -72,6 +72,20 @@ void printVector(std::vector<T> vect) {
 }
 
 
+int greedy_score(const std::vector<Item>& items, int capacity) {
+  int value = 0;
+  int room = capacity;
+
+  for(auto item : items) {
+    if (item.weight > room) continue;
+    room -= item.weight;
+    value += item.value;
+  }
+
+  return capacity;
+}
+
+
 void optimisticEstimation(Node* node, const std::vector<Item>& sortedItems, int capacity) {
   node->estimation = 0;
   node->value = 0;
@@ -119,10 +133,12 @@ int main(int argc, char**argv){
   auto items = problem.items;
   int capacity = problem.capacity;
 
-  int best_value = 0;
+
   vector<int> best_solution(items.size(), 0);
 
   std::sort(items.begin(), items.end(), sortByDensity);
+
+  int best_value = greedy_score(items, capacity);
 
   // Init
   Node root;
