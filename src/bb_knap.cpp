@@ -79,19 +79,19 @@ int main(int argc, char**argv){
     
     for (auto& n : treeFront) {
       if (n.room > 0 && n.estimation > best_value) {
-      left.local_constraint = n.local_constraint;
-      left.constraints = n.constraints;
-      left.local_constraint.push_back(i);
-      optimisticEstimation(&left, items, capacity);
-      newTreeFront.push_back(left);
+	left.local_constraint = n.local_constraint;
+	left.constraints = n.constraints;
+	left.local_constraint.push_back(i);
+	optimisticEstimation(&left, items, capacity);
+	newTreeFront.push_back(left);
     
-      right.local_constraint = n.local_constraint;
-      right.constraints = n.constraints;
-      right.constraints[i] = 0;
-      optimisticEstimation(&right, items, capacity);
-      newTreeFront.push_back(right);
+	right.local_constraint = n.local_constraint;
+	right.constraints = n.constraints;
+	right.constraints[i] = 0;
+	optimisticEstimation(&right, items, capacity);
+	newTreeFront.push_back(right);
+      }
     }
-  }
 
     treeFront.assign(newTreeFront.begin(), newTreeFront.end());
   
