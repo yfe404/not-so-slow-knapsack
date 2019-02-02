@@ -20,8 +20,6 @@ void optimisticEstimation(Node* node, const std::vector<Item>& sortedItems, int 
 
   for(int i : node->local_constraint) {
     room -= sortedItems[i].weight;
-  }
-  for(int i : node->local_constraint) {
     node->estimation += sortedItems[i].value;
     node->constraints[i] = 0; // prevent from using the item twice
   }
@@ -41,13 +39,10 @@ void optimisticEstimation(Node* node, const std::vector<Item>& sortedItems, int 
   }
   for(int i : node->local_constraint) {
     node->room -= sortedItems[i].weight;
-  }
-  for(int i : node->local_constraint) {
     node->value += sortedItems[i].value;
     node->constraints[i] = 1; // restoring value
   }
 }
-
 
 int main(int argc, char**argv){
 
@@ -97,7 +92,6 @@ int main(int argc, char**argv){
       newTreeFront.push_back(right);
     }
   }
-
 
     treeFront.assign(newTreeFront.begin(), newTreeFront.end());
   
