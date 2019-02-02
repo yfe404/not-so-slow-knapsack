@@ -5,8 +5,14 @@
 #include <algorithm>
 #include <fstream>
 #include <iostream>
+#include <mutex>
+#include <thread>
+
+#define N_THREAD 2
 
 using namespace std;
+
+std::mutex mtx;
 
 struct Item {
   float value;
@@ -14,8 +20,7 @@ struct Item {
   int id;
 } ;
 
-std::ostream& operator << (std::ostream& o, const Item& a)
-{
+std::ostream& operator << (std::ostream& o, const Item& a) {
   o << "(weight: " << a.weight << ", value: " << a.value << ")";
   return o;
 }
@@ -82,9 +87,8 @@ int greedy_score(const std::vector<Item>& items, int capacity) {
     value += item.value;
   }
 
-  return capacity;
+  return value;
 }
-
 
 void optimisticEstimation(Node* node, const std::vector<Item>& sortedItems, int capacity) {
   node->estimation = 0;
@@ -122,6 +126,31 @@ void optimisticEstimation(Node* node, const std::vector<Item>& sortedItems, int 
   }
 }
 
+void processNode(int th_num, const vector<Node>& treeFront, vector<Node>* dest, const std::vector<Item>& items, int capacity, int best_value, int i) {
+  Node left, right;
+    cout << th_num << endl;
+  for (int j=th_num; j < treeFront.size(); j+=N_THREAD) { 
+    if (treeFront[j].room > 0 && treeFront[j].estimation > best_value) {
+      left.local_constraint = treeFront[j].local_constraint;
+      left.constraints = treeFront[j].constraints;
+      left.local_constraint.push_back(i);
+      optimisticEstimation(&left, items, capacity);
+      mtx.lock();
+      dest->push_back(left);
+      mtx.unlock();
+    
+      right.local_constraint = treeFront[j].local_constraint;
+      right.constraints = treeFront[j].constraints;
+      right.constraints[i] = 0;
+      optimisticEstimation(&right, items, capacity);
+      mtx.lock();
+      dest->push_back(right);
+      mtx.unlock();
+    }
+  }
+}
+
+
 int main(int argc, char**argv){
 
   if (argc != 2) {
@@ -132,10 +161,11 @@ int main(int argc, char**argv){
   auto problem = readProblem(argv[1]);
   auto items = problem.items;
   int capacity = problem.capacity;
+  std::thread threads[N_THREAD];
 
 
   vector<int> best_solution(items.size(), 0);
-
+  
   std::sort(items.begin(), items.end(), sortByDensity);
 
   int best_value = greedy_score(items, capacity);
@@ -153,22 +183,13 @@ int main(int argc, char**argv){
   for(int i = 0; i < items.size(); ++i) {
     if (treeFront.size() == 0) break;
     newTreeFront.clear();
-    for (auto n : treeFront) {
-      Node left, right;
 
-      if (n.room > 0 && n.estimation > best_value) {
-	left.local_constraint = n.local_constraint;
-	left.constraints = n.constraints;
-	left.local_constraint.push_back(i);
-	optimisticEstimation(&left, items, capacity);
-	newTreeFront.push_back(left);
-      
-	right.local_constraint = n.local_constraint;
-	right.constraints = n.constraints;
-	right.constraints[i] = 0;
-	optimisticEstimation(&right, items, capacity);
-	newTreeFront.push_back(right);
-      }
+    for (int j = 0; j < N_THREAD; ++j) {
+      cout << j << endl;
+      threads[i]=std::thread(processNode, j, treeFront, &newTreeFront, items, capacity, best_value, i);
+    }
+    for (auto& th: threads) {
+      th.join();
     }
 
     treeFront.assign(newTreeFront.begin(), newTreeFront.end());
@@ -183,7 +204,6 @@ int main(int argc, char**argv){
       }
     }
   }
-
   
   // Build the solution vector
   vector<int> temp(items.size(),0);
