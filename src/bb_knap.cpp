@@ -3,22 +3,14 @@
 #include <string>
 #include <vector>
 #include <algorithm>
-#include <fstream>
-#include <iostream>
-#include <mutex>
-#include <thread>
 
-#define N_THREAD 2
+#include "io.hpp"
+#include "problem.hpp"
+
 
 using namespace std;
 
-std::mutex mtx;
-
-struct Item {
-  float value;
-  float weight;
-  int id;
-} ;
+#define N_THREAD 1
 
 std::ostream& operator << (std::ostream& o, const Item& a) {
   o << "(weight: " << a.weight << ", value: " << a.value << ")";
@@ -30,20 +22,6 @@ bool sortByDensity(const Item& lhs, const Item& rhs) {
   return (lhs.value/lhs.weight) > (rhs.value/rhs.weight);
 }
 
-struct Problem {
-  int n;
-  int capacity;
-  std::vector<Item> items;
-};
-
-struct Node {
-  int room;
-  std::vector<int> local_constraint; // indexes of the items to take
-  std::vector<int> constraints; // local constraints too but relative to estimation
-  int estimation = 0;
-  int value = 0;
-};
-
 
 std::ostream& operator << (std::ostream& o, const Node& a) {
   o << "Optimistic estimation: " << a.estimation << endl;
@@ -53,21 +31,6 @@ std::ostream& operator << (std::ostream& o, const Node& a) {
   return o;
 }
 
-Problem readProblem(std::string fp) {
-  std::vector<Item> items;
-  std::ifstream infile(fp);
-  int n, capacity;
-
-  infile >> n >> capacity;
-  
-  for (int i = 0; i < n; ++i) {
-    float v, w;
-    infile >> v >> w;
-    items.push_back(Item{v,w,i});
-  }
-  return Problem{n, capacity, items};
- 
-}
 
 template<typename T>
 void printVector(std::vector<T> vect) {
@@ -127,27 +90,6 @@ void optimisticEstimation(Node* node, const std::vector<Item>& sortedItems, int 
 }
 
 void processNode(int th_num, const vector<Node>& treeFront, vector<Node>* dest, const std::vector<Item>& items, int capacity, int best_value, int i) {
-  Node left, right;
-    cout << th_num << endl;
-  for (int j=th_num; j < treeFront.size(); j+=N_THREAD) { 
-    if (treeFront[j].room > 0 && treeFront[j].estimation > best_value) {
-      left.local_constraint = treeFront[j].local_constraint;
-      left.constraints = treeFront[j].constraints;
-      left.local_constraint.push_back(i);
-      optimisticEstimation(&left, items, capacity);
-      mtx.lock();
-      dest->push_back(left);
-      mtx.unlock();
-    
-      right.local_constraint = treeFront[j].local_constraint;
-      right.constraints = treeFront[j].constraints;
-      right.constraints[i] = 0;
-      optimisticEstimation(&right, items, capacity);
-      mtx.lock();
-      dest->push_back(right);
-      mtx.unlock();
-    }
-  }
 }
 
 
@@ -161,8 +103,6 @@ int main(int argc, char**argv){
   auto problem = readProblem(argv[1]);
   auto items = problem.items;
   int capacity = problem.capacity;
-  std::thread threads[N_THREAD];
-
 
   vector<int> best_solution(items.size(), 0);
   
@@ -184,13 +124,24 @@ int main(int argc, char**argv){
     if (treeFront.size() == 0) break;
     newTreeFront.clear();
 
-    for (int j = 0; j < N_THREAD; ++j) {
-      cout << j << endl;
-      threads[i]=std::thread(processNode, j, treeFront, &newTreeFront, items, capacity, best_value, i);
+    Node left, right;
+    
+    for (auto& n : treeFront) {
+      if (n.room > 0 && n.estimation > best_value) {
+      left.local_constraint = n.local_constraint;
+      left.constraints = n.constraints;
+      left.local_constraint.push_back(i);
+      optimisticEstimation(&left, items, capacity);
+      newTreeFront.push_back(left);
+    
+      right.local_constraint = n.local_constraint;
+      right.constraints = n.constraints;
+      right.constraints[i] = 0;
+      optimisticEstimation(&right, items, capacity);
+      newTreeFront.push_back(right);
     }
-    for (auto& th: threads) {
-      th.join();
-    }
+  }
+
 
     treeFront.assign(newTreeFront.begin(), newTreeFront.end());
   
