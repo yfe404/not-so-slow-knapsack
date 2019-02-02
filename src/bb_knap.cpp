@@ -7,51 +7,10 @@
 #include "io.hpp"
 #include "problem.hpp"
 
-
 using namespace std;
 
 #define N_THREAD 1
 
-std::ostream& operator << (std::ostream& o, const Item& a) {
-  o << "(weight: " << a.weight << ", value: " << a.value << ")";
-  return o;
-}
-
-// Sort by descending order (best value first)
-bool sortByDensity(const Item& lhs, const Item& rhs) {
-  return (lhs.value/lhs.weight) > (rhs.value/rhs.weight);
-}
-
-
-std::ostream& operator << (std::ostream& o, const Node& a) {
-  o << "Optimistic estimation: " << a.estimation << endl;
-  o << "Value: " << a.value << endl;
-  o << "Capacity left: " << a.room << endl;
-
-  return o;
-}
-
-
-template<typename T>
-void printVector(std::vector<T> vect) {
-  for (int i = 0; i < vect.size(); ++i)
-    std::cout << vect[i] << " ";
-  std::cout << std::endl;
-}
-
-
-int greedy_score(const std::vector<Item>& items, int capacity) {
-  int value = 0;
-  int room = capacity;
-
-  for(auto item : items) {
-    if (item.weight > room) continue;
-    room -= item.weight;
-    value += item.value;
-  }
-
-  return value;
-}
 
 void optimisticEstimation(Node* node, const std::vector<Item>& sortedItems, int capacity) {
   node->estimation = 0;
@@ -87,9 +46,6 @@ void optimisticEstimation(Node* node, const std::vector<Item>& sortedItems, int 
     node->value += sortedItems[i].value;
     node->constraints[i] = 1; // restoring value
   }
-}
-
-void processNode(int th_num, const vector<Node>& treeFront, vector<Node>* dest, const std::vector<Item>& items, int capacity, int best_value, int i) {
 }
 
 
@@ -167,11 +123,9 @@ int main(int argc, char**argv){
   }
   
   vector<int> sol(items.size(),0);
-  cout << best_value << " " << 1 << endl;
+
   for (int i = 0; i < items.size(); ++i) {
     sol[items[i].id] = temp[i]; 
   }
-
-  printVector(sol);
-
+  printSolution(sol, best_value, 1);
 }
